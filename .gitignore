@@ -1,0 +1,15 @@
+# personal data produced by the importer - never commit
+data/
+reports/
+*.db
+*.db-journal
+# python / editor junk
+__pycache__/
+*.pyc
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+# release build output
+.release/
+*.zip

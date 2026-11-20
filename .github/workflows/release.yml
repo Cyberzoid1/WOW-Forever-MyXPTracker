@@ -1,0 +1,44 @@
+# Push a tag like v0.13.0 -> builds MyXPTracker-v0.13.0-forever.zip and publishes a GitHub release.
+# WowUp (Install from URL / WowUp Hub) picks up releases from here.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run simulation tests
+        run: |
+          pip install lupa
+          python tests/run_sim.py
+          for f in tests/fixtures/*.lua; do python tests/run_sim.py --fixture "$f"; done
+
+      - name: Build addon zip
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+          mkdir -p .release
+          cp -r MyXPTracker .release/
+          # stamp the tag into the TOC
+          sed -i "s/^## Version:.*/## Version: ${VERSION#v}/" .release/MyXPTracker/MyXPTracker.toc
+          # flavor-specific TOC so WowUp / the client see it as a WoW Forever addon
+          cp .release/MyXPTracker/MyXPTracker.toc .release/MyXPTracker/MyXPTracker_Forever.toc
+          cd .release && zip -r "../MyXPTracker-${VERSION}-forever.zip" MyXPTracker
+          cd .. && unzip -l "MyXPTracker-${VERSION}-forever.zip"
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: MyXPTracker-${{ github.ref_name }}-forever.zip
+          generate_release_notes: true

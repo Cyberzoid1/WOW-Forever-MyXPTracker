@@ -1,0 +1,26 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  sim:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install lupa
+      - name: Addon simulation (mocked WoW API)
+        run: |
+          python tests/run_sim.py
+          for f in tests/fixtures/*.lua; do python tests/run_sim.py --fixture "$f"; done
+      - name: Importer smoke test
+        run: |
+          for f in tests/fixtures/*.lua; do
+            python tools/import_sqlite.py --sv "$f" --db /tmp/t.db --reports /tmp/rep --tz UTC
+          done
+          python tools/import_sqlite.py --sv tests/fixtures/*.lua --db /tmp/t.db --reports /tmp/rep --tz UTC | grep "new: 0 XP gains"

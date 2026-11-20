@@ -1,0 +1,10 @@
+## Interface: 16001
+## Title: MyXPTracker
+## Notes: Leveling tracker: XP/hr and level-pace averages, time to level, kills and quests, level history and an XP graph.
+## Author: Cyberzoid1
+## Version: 0.13.0
+## X-Website: https://github.com/Cyberzoid1/WOW-Forever-MyXPTracker
+## X-License: MIT
+## SavedVariables: MyXPTrackerDB
+
+MyXPTracker.lua
